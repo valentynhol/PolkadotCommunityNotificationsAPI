@@ -82,12 +82,12 @@ WSGI_APPLICATION = 'ApiCore.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'URL': env('PG_URL'),
-        'NAME': env('PG_DATABASE'),
-        'USER': env('PG_USER'),
-        'PASSWORD': env('PG_PASSWORD'),
-        'HOST': env('PG_HOST'),
-        'PORT': env('PG_PORT'),
+        'URL': os.getenv('PG_URL'),
+        'NAME': os.getenv('PG_DATABASE'),
+        'USER': os.getenv('PG_USER'),
+        'PASSWORD': os.getenv('PG_PASSWORD'),
+        'HOST': os.getenv('PG_HOST'),
+        'PORT': os.getenv('PG_PORT'),
     }
 }
 

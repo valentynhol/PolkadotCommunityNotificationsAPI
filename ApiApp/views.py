@@ -33,9 +33,18 @@ class SendGlobalNotification(views.APIView):
     serializer_class = PushNotificationSerializer
 
     def post(self, request):
-        context = {
-            'title': request.data.get('title'),
-            'body': request.data.get('body'),
-        }
+        try:
+            messaging.send(
+                messaging.Message(
+                    notification=messaging.Notification(
+                        title=request.data.get('title'),
+                        body=request.data.get('body'),
+                    ),
+                    topic="global"
+                )
+            )
 
-        return Response(context)
+            return Response({"success": True})
+        except Exception as e:
+            print(f"Error: Failed to send notification: {e}")
+            return Response({"success": False}, status=500)

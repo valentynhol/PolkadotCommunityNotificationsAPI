@@ -11,15 +11,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import json
+
 from pathlib import Path
 from dotenv import load_dotenv
-from firebase_admin import initialize_app
+from firebase_admin import initialize_app, credentials
 
 # Load all .env variables
 load_dotenv()
 
 # Initialize Firebase lib
-FIREBASE_APP = initialize_app()
+cred_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if cred_json:
+    initialize_app(credentials.Certificate(json.loads(cred_json)))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +34,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["0.0.0.0"]
 
 
 # Application definition
@@ -48,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -153,6 +158,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

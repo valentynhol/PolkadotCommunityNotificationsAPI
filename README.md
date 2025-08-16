@@ -4,6 +4,7 @@
 ```dotenv
 # App setup
 DEBUG="0"
+DJANGO_ALLOWED_HOSTS=".onrender.com"
 SECRET_KEY="*******"
 GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type": "service_account","project_id": ... '
 

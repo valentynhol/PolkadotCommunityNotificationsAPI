@@ -81,8 +81,13 @@ WSGI_APPLICATION = 'ApiCore.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'URL': env('PG_URL'),
+        'NAME': env('PG_DATABASE'),
+        'USER': env('PG_USER'),
+        'PASSWORD': env('PG_PASSWORD'),
+        'HOST': env('PG_HOST'),
+        'PORT': env('PG_PORT'),
     }
 }
 

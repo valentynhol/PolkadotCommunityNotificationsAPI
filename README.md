@@ -1,5 +1,12 @@
 # Notifications REST API Template for PlutoFramework
 
+### URLs
+```
+GET /admin - All admin tools needed (including login)
+POST /api/token - Register device to get JWT pair
+POST /api/token/refresh - Refresh access token using refresh token
+```
+
 ### .env example:
 ```dotenv
 # App setup

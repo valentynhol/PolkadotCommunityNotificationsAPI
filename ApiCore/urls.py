@@ -19,13 +19,16 @@ from django.urls import path, include
 
 from rest_framework import routers
 
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from ApiApp import views
 
 router = routers.DefaultRouter()
-router.register(r'devices', views.BriefFCMDeviceViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('global-notification/', views.SendGlobalNotification.as_view(), name='global-notification'),
+    path('api/token/', views.DeviceRegisterView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('notifications/global/', views.SendGlobalNotification.as_view(), name='global-notification'),
     path('admin/', admin.site.urls),
 ]

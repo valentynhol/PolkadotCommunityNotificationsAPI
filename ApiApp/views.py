@@ -1,15 +1,9 @@
-from django.contrib.auth.models import User
-
-from rest_framework import permissions, viewsets, views, authentication
-from rest_framework.permissions import IsAdminUser
+from rest_framework import permissions, views, authentication
 from rest_framework.response import Response
-
-from fcm_django.models import FCMDevice
-from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 
 from firebase_admin import messaging
 
-from ApiApp.serializers import PushNotificationSerializer, BriefFCMDeviceSerializer, DeviceRegisterSerializer
+from ApiApp.serializers import PushNotificationSerializer, DeviceRegisterSerializer
 from ApiApp.auth import DeviceJWTAuthentication
 from ApiApp.permissions import IsRegisteredDevice
 
@@ -27,6 +21,20 @@ class DeviceRegisterView(views.APIView):
         return Response(tokens)
 
 
+class NonceView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = NonceRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        device = serializer.create_or_get_device()
+        nonce = device.generate_nonce()
+
+        return Response({"nonce": nonce})
+
+
+# TODO: REMOVE, test only, already implemented by Firebase
 class SendGlobalNotification(views.APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication, DeviceJWTAuthentication]
     permission_classes = [permissions.IsAuthenticated | IsRegisteredDevice]

@@ -36,6 +36,13 @@ DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(",")
 
+# App attestation
+
+APK_NAME = os.getenv('APK_NAME')
+ATTESTATION_DECRYPTION_KEY = os.getenv('ATTESTATION_DECRYPTION_KEY')
+ATTESTATION_VERIFICATION_KEY = os.getenv('ATTESTATION_VERIFICATION_KEY')
+ATTESTATION_APP_SIGNING_KEY = os.getenv('ATTESTATION_APP_SIGNING_KEY')
+ATTESTATION_NONCE_EXPIRY_SECONDS = 120
 
 # Application definition
 
@@ -120,10 +127,10 @@ FCM_DJANGO_SETTINGS = {
     "DEFAULT_FIREBASE_APP": None,
      # default: _('FCM Django')
     "APP_VERBOSE_NAME": "ApiApp",
-     # true if you want to have only one active device per registered user at a time
+     # true, if you want to have only one active device per registered user at a time
      # default: False
     "ONE_DEVICE_PER_USER": False,
-     # devices to which notifications cannot be sent,
+     # devices to which notifications cannot be sent
      # are deleted upon receiving error response from FCM
      # default: False
     "DELETE_INACTIVE_DEVICES": True,

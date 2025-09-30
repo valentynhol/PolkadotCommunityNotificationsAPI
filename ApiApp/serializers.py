@@ -2,20 +2,33 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from fcm_django.models import FCMDevice
+from ApiApp.models import AttestedFCMDevice
 
-from .utils import verify_attestation, generate_device_jwt
+from ApiApp.utils import verify_attestation, generate_device_jwt
 
-
-class BriefFCMDeviceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FCMDevice
-        fields = ["device_id", "registration_id", "type"]
-
-
+# TODO: REMOVE, test only
 class PushNotificationSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=255)
     body = serializers.CharField(max_length=1000)
+
+
+class NonceRequestSerializer(serializers.Serializer):
+    device_id = serializers.CharField()
+    platform = serializers.ChoiceField(choices=["android", "ios"])
+
+    def create_or_get_device(self):
+        """
+        Get an existing device or create a new one.
+        Returns the AttestedFCMDevice instance.
+        """
+        device_id = self.validated_data["device_id"]
+        platform = self.validated_data["platform"]
+
+        device, _ = AttestedFCMDevice.objects.get_or_create(
+            id=device_id,
+            defaults={"type": platform}
+        )
+        return device
 
 
 class DeviceRegisterSerializer(serializers.Serializer):
@@ -28,7 +41,16 @@ class DeviceRegisterSerializer(serializers.Serializer):
     refresh = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
-        if not verify_attestation(attrs.get('attestation'), attrs.get('device_uuid'), attrs.get('platform')):
+        device_id = attrs.get("device_id")
+        platform = attrs.get("platform")
+        attest_token = attrs.get("attestation")
+
+        try:
+            device = AttestedFCMDevice.objects.get(id=device_id, type=platform)
+        except AttestedFCMDevice.DoesNotExist:
+            raise serializers.ValidationError("Device not found or invalid platform.")
+
+        if not device.verify_attestation(attest_token):
             raise serializers.ValidationError("Attestation verification failed.")
 
         return attrs
@@ -38,7 +60,7 @@ class DeviceRegisterSerializer(serializers.Serializer):
         platform = validated_data['platform']
         fcm_token = validated_data['fcm_token']
 
-        device, _ = FCMDevice.objects.update_or_create(
+        device, _ = AttestedFCMDevice.objects.update_or_create(
             device_id=device_uuid,
             defaults={
                 "type": platform,

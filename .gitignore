@@ -4,3 +4,5 @@
 db.sqlite3
 /firebase-service-account.json
 /static/
+__pycache__/
+*.py[cod]

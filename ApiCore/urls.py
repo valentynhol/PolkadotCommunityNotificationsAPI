@@ -27,6 +27,7 @@ router = routers.DefaultRouter()
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('api/nonce/', views.NonceView.as_view(), name='nonce_obtain'),
     path('api/token/', views.DeviceRegisterView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('notifications/global/', views.SendGlobalNotification.as_view(), name='global-notification'),

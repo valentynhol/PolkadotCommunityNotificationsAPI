@@ -12,6 +12,11 @@ class AttestedFCMDevice(FCMDevice):
     attest_nonce = models.CharField(max_length=255, null=True, blank=True)
     attest_nonce_created_at = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        indexes = []
+        verbose_name = "Attested FCM device"
+        verbose_name_plural = "Attested FCM devices"
+
     def generate_nonce(self, length: int = 32) -> str:
         """
         Generate a cryptographically secure random nonce,

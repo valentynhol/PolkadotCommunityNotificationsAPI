@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'fcm_django',
     'rest_framework_simplejwt',
+    'ApiApp',
 ]
 
 MIDDLEWARE = [

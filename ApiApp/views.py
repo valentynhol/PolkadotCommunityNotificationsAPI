@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from firebase_admin import messaging
 
-from ApiApp.serializers import PushNotificationSerializer, DeviceRegisterSerializer
+from ApiApp.serializers import PushNotificationSerializer, DeviceRegisterSerializer, NonceRequestSerializer
 from ApiApp.auth import DeviceJWTAuthentication
 from ApiApp.permissions import IsRegisteredDevice
 
@@ -21,11 +21,12 @@ class DeviceRegisterView(views.APIView):
         return Response(tokens)
 
 
-class NonceView(APIView):
-    permission_classes = [AllowAny]
+class NonceView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = NonceRequestSerializer
 
     def post(self, request):
-        serializer = NonceRequestSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         device = serializer.create_or_get_device()

@@ -23,17 +23,21 @@ def verify_attestation(attest_token: str, nonce: bytes, platform: Literal["andro
     print("INFO: Verifying attestation")
 
     if platform == "android":
-        config = GooglePlayIntegrityApiConfig(
-            decryption_key=ATTESTATION_DECRYPTION_KEY,
-            verification_key=ATTESTATION_VERIFICATION_KEY,
-            apk_package_name=APK_NAME,
-            production=not DEBUG,
-            allow_non_play_distribution=DEBUG,
-            verify_code_signature_hex=[
-                ATTESTATION_APP_SIGNING_KEY
-            ],
-            required_device_verdict="MEETS_STRONG_INTEGRITY", # TODO
-        )
+        try:
+            config = GooglePlayIntegrityApiConfig(
+                decryption_key=ATTESTATION_DECRYPTION_KEY,
+                verification_key=ATTESTATION_VERIFICATION_KEY,
+                apk_package_name=APK_NAME,
+                production=not DEBUG,
+                allow_non_play_distribution=DEBUG,
+                verify_code_signature_hex=[
+                    ATTESTATION_APP_SIGNING_KEY
+                ],
+                required_device_verdict="MEETS_STRONG_INTEGRITY", # TODO
+            )
+        except ValueError:
+            return False
+
         attestation = Attestation(attest_token, nonce, config)
 
         try:

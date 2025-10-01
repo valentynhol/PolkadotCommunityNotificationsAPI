@@ -13,7 +13,7 @@ class PushNotificationSerializer(serializers.Serializer):
 
 
 class NonceRequestSerializer(serializers.Serializer):
-    device_id = serializers.CharField()
+    device_uuid = serializers.CharField()
     platform = serializers.ChoiceField(choices=["android", "ios"])
 
     def create_or_get_device(self):
@@ -21,11 +21,11 @@ class NonceRequestSerializer(serializers.Serializer):
         Get an existing device or create a new one.
         Returns the AttestedFCMDevice instance.
         """
-        device_id = self.validated_data["device_id"]
+        device_uuid = self.validated_data["device_uuid"]
         platform = self.validated_data["platform"]
 
         device, _ = AttestedFCMDevice.objects.get_or_create(
-            id=device_id,
+            device_id=device_uuid,
             defaults={"type": platform}
         )
         return device
@@ -41,12 +41,12 @@ class DeviceRegisterSerializer(serializers.Serializer):
     refresh = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
-        device_id = attrs.get("device_id")
+        device_id = attrs.get("device_uuid")
         platform = attrs.get("platform")
         attest_token = attrs.get("attestation")
 
         try:
-            device = AttestedFCMDevice.objects.get(id=device_id, type=platform)
+            device = AttestedFCMDevice.objects.get(device_id=device_id, type=platform)
         except AttestedFCMDevice.DoesNotExist:
             raise serializers.ValidationError("Device not found or invalid platform.")
 

@@ -1,0 +1,12 @@
+Django==5.2.5
+django-filter==25.1
+djangorestframework==3.16.0
+Markdown==3.8.2
+python-dotenv==1.1.1
+fcm-django==2.3.1
+firebase_admin==7.1.0
+psycopg2-binary==2.9.10
+gunicorn==23.0.0
+whitenoise==6.9.0
+djangorestframework-simplejwt==5.5.1
+pyattest==1.0.2

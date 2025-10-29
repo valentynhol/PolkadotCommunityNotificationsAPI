@@ -3,8 +3,7 @@ from rest_framework.response import Response
 
 from firebase_admin import messaging
 
-from ApiApp.serializers import PushNotificationSerializer, DeviceRegisterSerializer, NonceRequestSerializer, \
-    FCMTokenSerializer
+from ApiApp.serializers import DeviceRegisterSerializer, NonceRequestSerializer, FCMTokenSerializer
 from ApiApp.auth import DeviceJWTAuthentication
 from ApiApp.permissions import IsRegisteredDevice
 from ApiApp.models import AttestedFCMDevice

@@ -3,9 +3,11 @@ from rest_framework.response import Response
 
 from firebase_admin import messaging
 
-from ApiApp.serializers import PushNotificationSerializer, DeviceRegisterSerializer, NonceRequestSerializer
+from ApiApp.serializers import PushNotificationSerializer, DeviceRegisterSerializer, NonceRequestSerializer, \
+    FCMTokenSerializer
 from ApiApp.auth import DeviceJWTAuthentication
 from ApiApp.permissions import IsRegisteredDevice
+from ApiApp.models import AttestedFCMDevice
 
 
 class DeviceRegisterView(views.APIView):
@@ -21,6 +23,32 @@ class DeviceRegisterView(views.APIView):
         return Response(tokens)
 
 
+class FCMTokenUpdateView(views.APIView):
+    permission_classes = [IsRegisteredDevice]
+    authentication_classes = [DeviceJWTAuthentication]
+
+    serializer_class = FCMTokenSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            fcm_token = serializer.validated_data['fcm_token']
+
+            try:
+                device = AttestedFCMDevice.objects.get(device_id=request.device_uuid)
+            except AttestedFCMDevice.DoesNotExist:
+                # shouldn't happen
+                return Response({'error': 'Device not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            device.registration_id = fcm_token
+            device.save(update_fields=['registration_id'])
+
+            return Response({'message': 'Token updated successfully.'}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class NonceView(views.APIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = NonceRequestSerializer
@@ -33,27 +61,3 @@ class NonceView(views.APIView):
         nonce = device.generate_nonce()
 
         return Response({"nonce": nonce})
-
-
-# TODO: REMOVE, test only, already implemented by Firebase
-class SendGlobalNotification(views.APIView):
-    authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication, DeviceJWTAuthentication]
-    permission_classes = [permissions.IsAuthenticated | IsRegisteredDevice]
-    serializer_class = PushNotificationSerializer
-
-    def post(self, request):
-        try:
-            messaging.send(
-                messaging.Message(
-                    notification=messaging.Notification(
-                        title=request.data.get('title'),
-                        body=request.data.get('body'),
-                    ),
-                    topic="global"
-                )
-            )
-
-            return Response({"success": True})
-        except Exception as e:
-            print(f"Error: Failed to send notification: {e}")
-            return Response({"success": False}, status=500)

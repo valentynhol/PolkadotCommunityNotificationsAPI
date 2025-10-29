@@ -6,11 +6,6 @@ from ApiApp.models import AttestedFCMDevice
 
 from ApiApp.utils import verify_attestation, generate_device_jwt
 
-# TODO: REMOVE, test only
-class PushNotificationSerializer(serializers.Serializer):
-    title = serializers.CharField(max_length=255)
-    body = serializers.CharField(max_length=1000)
-
 
 class NonceRequestSerializer(serializers.Serializer):
     device_uuid = serializers.CharField()
@@ -31,10 +26,13 @@ class NonceRequestSerializer(serializers.Serializer):
         return device
 
 
+class FCMTokenSerializer(serializers.Serializer):
+    fcm_token = serializers.CharField(max_length=255)
+
+
 class DeviceRegisterSerializer(serializers.Serializer):
     device_uuid = serializers.UUIDField()
     platform = serializers.ChoiceField(choices=['android', 'ios'])
-    fcm_token = serializers.CharField()
     attestation = serializers.CharField()
 
     access = serializers.CharField(read_only=True)
@@ -58,13 +56,11 @@ class DeviceRegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         device_uuid = validated_data['device_uuid']
         platform = validated_data['platform']
-        fcm_token = validated_data['fcm_token']
 
         device, _ = AttestedFCMDevice.objects.update_or_create(
             device_id=device_uuid,
             defaults={
                 "type": platform,
-                "registration_id": fcm_token,
             }
         )
 

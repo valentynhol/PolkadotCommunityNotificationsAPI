@@ -28,8 +28,8 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('', include(router.urls)),
     path('api/nonce/', views.NonceView.as_view(), name='nonce_obtain'),
-    path('api/token/', views.DeviceRegisterView.as_view(), name='token_obtain_pair'),
+    path('api/token/', views.DeviceRegisterView.as_view(), name='obtain_token_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('notifications/global/', views.SendGlobalNotification.as_view(), name='global-notification'),
+    path('api/fcm/token-update', views.FCMTokenUpdateView.as_view(), name='fcm_token_update'),
     path('admin/', admin.site.urls),
 ]

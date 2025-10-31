@@ -1,11 +1,10 @@
 from typing import Literal
 
 from rest_framework_simplejwt.tokens import RefreshToken
-from pyattest.configs.google_play_integrity_api import GooglePlayIntegrityApiConfig
 from pyattest.attestation import Attestation
+from pyattest.exceptions import PyAttestException
 
-from ApiCore.settings import (APK_NAME, DEBUG, ATTESTATION_DECRYPTION_KEY, ATTESTATION_VERIFICATION_KEY,
-                              ATTESTATION_APP_SIGNING_KEY)
+from ApiCore.settings import PLAY_INTEGRITY_CONFIG
 
 
 def verify_attestation(attest_token: str, nonce: bytes, platform: Literal["android", "ios"]) -> bool:
@@ -23,22 +22,7 @@ def verify_attestation(attest_token: str, nonce: bytes, platform: Literal["andro
     print("INFO: Verifying attestation")
 
     if platform == "android":
-        try:
-            config = GooglePlayIntegrityApiConfig(
-                decryption_key=ATTESTATION_DECRYPTION_KEY,
-                verification_key=ATTESTATION_VERIFICATION_KEY,
-                apk_package_name=APK_NAME,
-                production=not DEBUG,
-                allow_non_play_distribution=DEBUG,
-                verify_code_signature_hex=[
-                    ATTESTATION_APP_SIGNING_KEY
-                ],
-                required_device_verdict="MEETS_STRONG_INTEGRITY", # TODO
-            )
-        except ValueError:
-            return False
-
-        attestation = Attestation(attest_token, nonce, config)
+        attestation = Attestation(attest_token, nonce, PLAY_INTEGRITY_CONFIG)
 
         try:
             attestation.verify()

@@ -16,12 +16,13 @@ import json
 from pathlib import Path
 from dotenv import load_dotenv
 from firebase_admin import initialize_app, credentials
+from pyattest.configs.google_play_integrity_api import GooglePlayIntegrityApiConfig
 
 # Load all .env variables
 load_dotenv()
 
 # Initialize Firebase lib
-cred_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+cred_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
 if cred_json:
     initialize_app(credentials.Certificate(json.loads(cred_json)))
 
@@ -32,17 +33,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG = bool(int(os.getenv("DEBUG", "0").strip()))
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(",")
 
 # App attestation
 
 APK_NAME = os.getenv('APK_NAME')
-ATTESTATION_DECRYPTION_KEY = os.getenv('ATTESTATION_DECRYPTION_KEY')
-ATTESTATION_VERIFICATION_KEY = os.getenv('ATTESTATION_VERIFICATION_KEY')
-ATTESTATION_APP_SIGNING_KEY = os.getenv('ATTESTATION_APP_SIGNING_KEY')
+ATTESTATION_DECRYPTION_KEY = os.getenv('ATTESTATION_DECRYPTION_KEY', "")
+ATTESTATION_VERIFICATION_KEY = os.getenv('ATTESTATION_VERIFICATION_KEY', "")
+ATTESTATION_APP_SIGNING_KEY = os.getenv('ATTESTATION_APP_SIGNING_KEY', "")
 ATTESTATION_NONCE_EXPIRY_SECONDS = 120
+
+PLAY_INTEGRITY_CONFIG = GooglePlayIntegrityApiConfig(
+    decryption_key=ATTESTATION_DECRYPTION_KEY,
+    verification_key=ATTESTATION_VERIFICATION_KEY,
+    apk_package_name=APK_NAME,
+    production=not DEBUG,
+    allow_non_play_distribution=DEBUG,
+    verify_code_signature_hex=[
+        ATTESTATION_APP_SIGNING_KEY
+    ]
+)
 
 # Application definition
 
